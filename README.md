@@ -3,7 +3,9 @@
 Convert image sequences into ASCII art frames — CLI + GUI.
 Built by [Polka Dot Post](https://github.com/harv12321).
 
-![ASCII art effect preview](preview.png)
+<img src="preview.png" width="100%" alt="ASCII art effect — white on black" />
+
+<img src="preview2.png" width="100%" alt="ASCII art effect — black on white" />
 
 ---
 
