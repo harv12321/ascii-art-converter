@@ -92,5 +92,3 @@ git clone https://github.com/harv12321/ascii-art-converter.git
 [harv12321.github.io/ascii-art-converter](https://harv12321.github.io/ascii-art-converter)
 
 ---
-
-MIT License
