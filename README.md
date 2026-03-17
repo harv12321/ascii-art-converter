@@ -1,4 +1,4 @@
-# ASCII Art Converter
+# ASCII Art Converter (v1)
 
 Convert image sequences into ASCII art frames — CLI + GUI.
 Built by [Polka Dot Post](https://github.com/harv12321).
