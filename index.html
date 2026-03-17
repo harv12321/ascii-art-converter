@@ -787,6 +787,119 @@
       font-size: 0.78rem;
       color: var(--subtext0);
     }
+
+    /* ══════════════════════════════════════════════════════════
+       MOBILE RESPONSIVE
+    ══════════════════════════════════════════════════════════ */
+
+    /* Hamburger button — hidden on desktop */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 99px;
+      transition: all 0.25s;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile nav drawer */
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(17,17,27,0.97);
+      backdrop-filter: blur(20px);
+      padding: 5rem 2rem 2rem;
+      z-index: 150;
+      flex-direction: column;
+      gap: 1.5rem;
+      border-bottom: 1px solid var(--overlay0);
+    }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--overlay0);
+    }
+    .nav-drawer a:last-child { border-bottom: none; }
+
+    @media (max-width: 768px) {
+      /* Nav */
+      nav { padding: 0.85rem 1.2rem; }
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; z-index: 201; position: relative; }
+
+      /* Hero */
+      .hero-wrap { padding: 6rem 1.2rem 3rem; }
+      .hero-sub { font-size: 0.95rem; }
+      .cta-row { gap: 0.6rem; }
+      .btn { padding: 0.6rem 1.1rem; font-size: 0.85rem; }
+      #asciiCanvas { height: 130px; }
+
+      /* Stats */
+      .stats { grid-template-columns: 1fr 1fr; }
+
+      /* Sections */
+      .section { padding: 3.5rem 1.2rem; }
+      .section h2 { font-size: 1.5rem; }
+
+      /* Cards */
+      .cards { grid-template-columns: 1fr; }
+
+      /* GUI mockup — stack panels */
+      .gui-body { grid-template-columns: 1fr; }
+      .gui-left { border-right: none; border-bottom: 1px solid var(--overlay0); }
+      .gui-right { min-height: 220px; }
+
+      /* Terminal */
+      #termOutput { font-size: 0.68rem; padding: 1rem; min-height: 200px; }
+
+      /* Config table — horizontal scroll */
+      .table-wrap { overflow-x: auto; }
+      table { min-width: 560px; }
+
+      /* Steps */
+      .step { padding: 1rem 1.1rem; }
+
+      /* Footer */
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.8rem 1.2rem;
+      }
+      .footer-links { flex-wrap: wrap; gap: 1rem; }
+    }
+
+    @media (max-width: 480px) {
+      /* Even smaller phones */
+      .hero-wrap { padding: 5.5rem 1rem 2.5rem; }
+      .stats { grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+      .stat { padding: 1rem; }
+      .stat-num { font-size: 1.6rem; }
+      .ascii-canvas-wrap { border-radius: 8px; }
+      #asciiCanvas { height: 110px; }
+      .section { padding: 2.8rem 1rem; }
+      .terminal { border-radius: 8px; }
+      #termOutput { font-size: 0.63rem; }
+      .cards { gap: 0.8rem; }
+      .card { padding: 1.1rem; }
+      .step-num { width: 26px; height: 26px; font-size: 0.72rem; }
+    }
   </style>
 </head>
 <body>
@@ -804,7 +917,20 @@
       GitHub
     </a>
   </div>
+  <!-- Hamburger (mobile only) -->
+  <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- Mobile nav drawer -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="#features" onclick="closeDrawer()">Features</a>
+  <a href="#demo" onclick="closeDrawer()">Demo</a>
+  <a href="#install" onclick="closeDrawer()">Install</a>
+  <a href="#config" onclick="closeDrawer()">Config</a>
+  <a href="https://github.com/harv12321/ascii-art-converter" onclick="closeDrawer()">GitHub ↗</a>
+</div>
 
 <!-- ── Hero ─────────────────────────────────────────────────── -->
 <section class="hero-wrap">
@@ -1135,6 +1261,22 @@ const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 30);
 }, { passive: true });
+
+/* ── Hamburger menu ─────────────────────────────────────── */
+const hamburger = document.getElementById('hamburger');
+const navDrawer = document.getElementById('navDrawer');
+hamburger.addEventListener('click', () => {
+  const open = navDrawer.classList.toggle('open');
+  hamburger.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+function closeDrawer() {
+  navDrawer.classList.remove('open');
+  hamburger.classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Close drawer on outside click
+navDrawer.addEventListener('click', e => { if (e.target === navDrawer) closeDrawer(); });
 
 /* ── Scroll reveal ──────────────────────────────────────── */
 const observer = new IntersectionObserver(entries => {
