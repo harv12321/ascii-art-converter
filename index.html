@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASCII Art Converter — Polka Dot Post</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #11111b;
+      --surface0: #1e1e2e;
+      --surface1: #27273a;
+      --surface2: #313244;
+      --overlay0: #45475a;
+      --subtext0: #6c7086;
+      --subtext1: #7f849c;
+      --text:     #cdd6f4;
+      --lavender: #b4befe;
+      --accent:   #cba6f7;
+      --blue:     #89b4fa;
+      --sapphire: #74c7ec;
+      --green:    #a6e3a1;
+      --yellow:   #f9e2af;
+      --peach:    #fab387;
+      --red:      #f38ba8;
+      --radius:   12px;
+      --radius-sm: 6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Scrollbar ───────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--overlay0); border-radius: 99px; }
+
+    /* ══════════════════════════════════════════════════════════
+       NAV
+    ══════════════════════════════════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 2.5rem;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s, backdrop-filter 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(17, 17, 27, 0.85);
+      backdrop-filter: blur(16px);
+      border-color: var(--overlay0);
+    }
+    .nav-logo {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-logo::before {
+      content: "●";
+      color: var(--peach);
+      font-size: 0.7rem;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      font-size: 0.875rem;
+      color: var(--subtext1);
+    }
+    .nav-links a { color: var(--subtext1); transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-gh {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border: 1px solid var(--overlay0);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text) !important;
+      transition: border-color 0.2s, background 0.2s !important;
+    }
+    .nav-gh:hover { border-color: var(--accent); background: rgba(203,166,247,0.07); text-decoration: none !important; }
+
+    /* ══════════════════════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════════════════════ */
+    .hero-wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8rem 1.5rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* grid glow background */
+    .hero-wrap::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% -10%, rgba(203,166,247,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 60%, rgba(137,180,250,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* subtle dot grid */
+    .hero-wrap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 80%);
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(203,166,247,0.08);
+      border: 1px solid rgba(203,166,247,0.25);
+      border-radius: 99px;
+      padding: 0.3rem 1rem;
+      font-size: 0.73rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.8rem;
+    }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.3rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--subtext1);
+      max-width: 560px;
+      margin: 0 auto 2.4rem;
+      line-height: 1.75;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 0.9rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 4rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.7rem 1.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      text-decoration: none !important;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #11111b;
+      box-shadow: 0 0 24px rgba(203,166,247,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 36px rgba(203,166,247,0.45); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--overlay0);
+      color: var(--text);
+    }
+    .btn-outline:hover { border-color: var(--accent); background: rgba(203,166,247,0.06); transform: translateY(-1px); }
+
+    /* ── ASCII canvas animation ──────────────────────────────── */
+    .ascii-canvas-wrap {
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--overlay0);
+      background: var(--surface1);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+    }
+    .canvas-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--overlay0);
+      background: var(--surface0);
+    }
+    .d { width: 11px; height: 11px; border-radius: 50%; }
+    .d-r { background: #f38ba8; }
+    .d-y { background: #f9e2af; }
+    .d-g { background: #a6e3a1; }
+    .canvas-title {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      color: var(--subtext0);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #asciiCanvas {
+      display: block;
+      width: 100%;
+      height: 180px;
+      background: var(--surface1);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SCROLL ANIMATIONS
+    ══════════════════════════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+
+    /* ══════════════════════════════════════════════════════════
+       SECTION COMMON
+    ══════════════════════════════════════════════════════════ */
+    .section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 1.5rem;
+    }
+    .section-eyebrow {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.7rem;
+    }
+    .section h2 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.6rem;
+    }
+    .section > .lead {
+      color: var(--subtext1);
+      margin-bottom: 2.5rem;
+      max-width: 580px;
+      font-size: 0.97rem;
+    }
+
+    hr.section-divider {
+      border: none;
+      border-top: 1px solid var(--overlay0);
+      margin: 0;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       FEATURE CARDS
+    ══════════════════════════════════════════════════════════ */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.1rem;
+    }
+    .card {
+      background: var(--surface0);
+      border: 1px solid var(--overlay0);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+    .card:hover {
+      border-color: rgba(203,166,247,0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    }
+    .card-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      margin-bottom: 0.9rem;
+      background: var(--surface2);
+      border: 1px solid var(--overlay0);
+    }
+    .card h3 {
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+    .card p {
+      font-size: 0.83rem;
+      color: var(--subtext0);
+      line-height: 1.6;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       TERMINAL (typewriter demo)
+    ══════════════════════════════════════════════════════════ */
+    .terminal {
+      background: var(--surface0);
+      border: 1px solid var(--overlay0);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 16px 60px rgba(0,0,0,0.5);
+    }
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.65rem 1.1rem;
+      border-bottom: 1px solid var(--overlay0);
+      background: var(--surface1);
+    }
+    .terminal-title {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      color: var(--subtext0);
+      margin: 0 auto;
+    }
+    #termOutput {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.76rem;
+      line-height: 1.75;
+      padding: 1.2rem 1.4rem;
+      min-height: 280px;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .t-muted  { color: var(--subtext0); }
+    .t-accent { color: var(--accent); }
+    .t-green  { color: var(--green); }
+    .t-yellow { color: var(--yellow); }
+    .t-blue   { color: var(--blue); }
+    .t-red    { color: var(--red); }
+    .cursor {
+      display: inline-block;
+      width: 8px; height: 14px;
+      background: var(--accent);
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ══════════════════════════════════════════════════════════
+       GUI MOCKUP
+    ══════════════════════════════════════════════════════════ */
+    .gui-wrap {
+      background: var(--surface0);
+      border: 1px solid var(--overlay0);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+      max-width: 780px;
+      margin: 0 auto;
+    }
+    .gui-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--overlay0);
+      background: var(--surface1);
+    }
+    .gui-titlebar-text {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      color: var(--subtext0);
+      margin: 0 auto;
+    }
+    .gui-body {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 400px;
+    }
+    .gui-left {
+      border-right: 1px solid var(--overlay0);
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      background: var(--surface1);
+    }
+    .gui-section-label {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--subtext0);
+      margin-bottom: 0.3rem;
+    }
+    .gui-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .gui-label {
+      font-size: 0.76rem;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+    .gui-input {
+      background: var(--surface2);
+      border: 1px solid var(--overlay0);
+      border-radius: 4px;
+      padding: 0.2rem 0.5rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      color: var(--blue);
+      width: 60px;
+      text-align: center;
+    }
+    .gui-input-wide {
+      background: var(--surface2);
+      border: 1px solid var(--overlay0);
+      border-radius: 4px;
+      padding: 0.2rem 0.5rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      color: var(--yellow);
+      flex: 1;
+    }
+    .gui-browse-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .gui-browse-field {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--overlay0);
+      border-radius: 4px;
+      padding: 0.25rem 0.6rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.7rem;
+      color: var(--subtext1);
+    }
+    .gui-browse-btn {
+      background: var(--accent);
+      color: #11111b;
+      border: none;
+      border-radius: 4px;
+      padding: 0.25rem 0.65rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: default;
+    }
+    .gui-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .gui-slider-track {
+      flex: 1;
+      height: 4px;
+      background: var(--surface2);
+      border-radius: 99px;
+      position: relative;
+    }
+    .gui-slider-fill {
+      position: absolute;
+      left: 0; top: 0;
+      width: 50%;
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+    }
+    .gui-slider-thumb {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border: 2px solid var(--surface1);
+      border-radius: 50%;
+    }
+    .gui-slider-val {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      width: 30px;
+      text-align: right;
+    }
+    .gui-radio-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .gui-radio {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      cursor: default;
+    }
+    .gui-radio.active {
+      background: rgba(203,166,247,0.15);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
+    .gui-radio.inactive {
+      background: var(--surface2);
+      border: 1px solid var(--overlay0);
+      color: var(--subtext0);
+    }
+    .gui-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .gui-checkbox {
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.55rem;
+      color: #11111b;
+      font-weight: 900;
+    }
+    .gui-btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: auto;
+    }
+    .gui-convert-btn {
+      background: var(--green);
+      color: #11111b;
+      border: none;
+      border-radius: 5px;
+      padding: 0.45rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-align: center;
+      cursor: default;
+    }
+    .gui-cancel-btn {
+      background: var(--surface2);
+      color: var(--subtext0);
+      border: 1px solid var(--overlay0);
+      border-radius: 5px;
+      padding: 0.45rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-align: center;
+      cursor: default;
+    }
+    .gui-right {
+      display: flex;
+      flex-direction: column;
+      padding: 1.1rem;
+      gap: 0.7rem;
+    }
+    .gui-log-label {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--subtext0);
+    }
+    .gui-log {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--overlay0);
+      border-radius: 6px;
+      padding: 0.8rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.69rem;
+      line-height: 1.75;
+      color: var(--text);
+      overflow: hidden;
+    }
+    .gui-progress-wrap {
+      background: var(--surface2);
+      border-radius: 99px;
+      height: 5px;
+      overflow: hidden;
+    }
+    .gui-progress-bar {
+      width: 72%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--blue));
+      border-radius: 99px;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       INSTALL STEPS
+    ══════════════════════════════════════════════════════════ */
+    .steps { display: flex; flex-direction: column; gap: 1rem; }
+    .step {
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+      background: var(--surface0);
+      border: 1px solid var(--overlay0);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.4rem;
+      transition: border-color 0.2s;
+    }
+    .step:hover { border-color: rgba(203,166,247,0.3); }
+    .step-num {
+      flex-shrink: 0;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--blue));
+      color: #11111b;
+      font-size: 0.78rem;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-body h3 { font-size: 0.92rem; font-weight: 600; margin-bottom: 0.35rem; }
+    .step-body p { font-size: 0.83rem; color: var(--subtext0); }
+    code {
+      font-family: "JetBrains Mono", monospace;
+      background: var(--surface2);
+      border: 1px solid var(--overlay0);
+      border-radius: 4px;
+      padding: 0.1em 0.45em;
+      font-size: 0.84em;
+      color: var(--yellow);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       CONFIG TABLE
+    ══════════════════════════════════════════════════════════ */
+    .table-wrap {
+      background: var(--surface0);
+      border: 1px solid var(--overlay0);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    th {
+      text-align: left;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--overlay0);
+      color: var(--subtext0);
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: var(--surface1);
+    }
+    td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid rgba(69,71,90,0.5);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    tr:last-child td { border-bottom: none; }
+    td:first-child {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      color: var(--blue);
+      white-space: nowrap;
+    }
+    td:nth-child(2) {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      color: var(--peach);
+    }
+    td:nth-child(3) { color: var(--subtext1); font-size: 0.82rem; }
+    tr:hover td { background: rgba(69,71,90,0.2); }
+
+    /* ══════════════════════════════════════════════════════════
+       STAT ROW
+    ══════════════════════════════════════════════════════════ */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 4rem;
+    }
+    .stat {
+      background: var(--surface0);
+      border: 1px solid var(--overlay0);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent), var(--blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--subtext0); margin-top: 0.2rem; }
+
+    /* ══════════════════════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════════════════════ */
+    footer {
+      border-top: 1px solid var(--overlay0);
+      padding: 2.5rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-brand {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--subtext0);
+    }
+    .footer-links a { color: var(--subtext0); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); text-decoration: none; }
+    .footer-copy {
+      font-size: 0.78rem;
+      color: var(--subtext0);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ──────────────────────────────────────────────────── -->
+<nav id="nav">
+  <div class="nav-logo">Polka Dot Post</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#demo">Demo</a>
+    <a href="#install">Install</a>
+    <a href="#config">Config</a>
+    <a href="https://github.com/harv12321/ascii-art-converter" class="nav-gh">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      GitHub
+    </a>
+  </div>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────── -->
+<section class="hero-wrap">
+  <div class="hero-inner">
+    <div class="badge"><span class="badge-dot"></span>Open Source · Python 3.10+ · GUI + CLI</div>
+    <h1>Convert image sequences<br />into <em>ASCII art frames</em></h1>
+    <p class="hero-sub">
+      A pipeline-ready ASCII renderer for premultiplied RGBA PNG sequences.
+      Export white-on-black, black-on-white, or full-colour — with custom branded
+      text woven through the artwork.
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/harv12321/ascii-art-converter/releases">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15.5l-6-6h4V4h4v5.5h4l-6 6zm6 2H6v2h12v-2z"/></svg>
+        Download
+      </a>
+      <a class="btn btn-outline" href="https://github.com/harv12321/ascii-art-converter">
+        View on GitHub
+      </a>
+    </div>
+
+    <!-- Live ASCII canvas -->
+    <div class="ascii-canvas-wrap">
+      <div class="canvas-bar">
+        <span class="d d-r"></span><span class="d d-y"></span><span class="d d-g"></span>
+        <span class="canvas-title">ascii_preview — live</span>
+      </div>
+      <canvas id="asciiCanvas"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ── Stats ─────────────────────────────────────────────────── -->
+<div class="section" style="padding-bottom:0">
+  <div class="stats reveal">
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">render styles</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">frames per batch</div></div>
+    <div class="stat"><div class="stat-num">2</div><div class="stat-label">pip packages</div></div>
+    <div class="stat"><div class="stat-num">GUI</div><div class="stat-label">+ CLI included</div></div>
+  </div>
+</div>
+
+<hr class="section-divider" />
+
+<!-- ── Features ──────────────────────────────────────────────── -->
+<section class="section" id="features">
+  <div class="reveal">
+    <div class="section-eyebrow">What it does</div>
+    <h2>Built for motion graphics pipelines</h2>
+    <p class="lead">Processes entire PNG sequences, not just single images. Drop a folder of frames, get back a folder of ASCII renders.</p>
+  </div>
+  <div class="cards">
+    <div class="card reveal reveal-delay-1">
+      <div class="card-icon">🎞️</div>
+      <h3>Batch frame processing</h3>
+      <p>Drop an entire folder of PNGs and receive a matching folder of ASCII renders — numbered identically, ready to re-import.</p>
+    </div>
+    <div class="card reveal reveal-delay-2">
+      <div class="card-icon">🎨</div>
+      <h3>Three render styles</h3>
+      <p>White-on-black, black-on-white, and full-colour — all three generated in a single pass from one source scan.</p>
+    </div>
+    <div class="card reveal reveal-delay-3">
+      <div class="card-icon">🔤</div>
+      <h3>Custom branded text</h3>
+      <p>Scatter any string — "H&amp;M", "PDP", a logo, a year — intact through the subject. Density is fully adjustable.</p>
+    </div>
+    <div class="card reveal reveal-delay-4">
+      <div class="card-icon">📐</div>
+      <h3>Exact output dimensions</h3>
+      <p>Output PNGs are always resized to exactly match the source frame. No pixel-dimension surprises or aspect ratio drift.</p>
+    </div>
+    <div class="card reveal reveal-delay-5">
+      <div class="card-icon">🔲</div>
+      <h3>Premultiplied alpha</h3>
+      <p>Correctly unpremultiplies RGBA before converting — subject edges come out clean, not dark-fringed or blurred.</p>
+    </div>
+    <div class="card reveal reveal-delay-1">
+      <div class="card-icon">🖥️</div>
+      <h3>GUI + CLI</h3>
+      <p>Run headlessly in a terminal or launch the tkinter GUI for a live settings panel with a real-time progress bar and log.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- ── Terminal demo ─────────────────────────────────────────── -->
+<section class="section" id="demo">
+  <div class="reveal">
+    <div class="section-eyebrow">CLI demo</div>
+    <h2>See it run</h2>
+    <p class="lead">Point it at any folder of PNG frames and it handles the rest.</p>
+  </div>
+  <div class="terminal reveal reveal-delay-1">
+    <div class="terminal-bar">
+      <span class="d d-r"></span><span class="d d-y"></span><span class="d d-g"></span>
+      <span class="terminal-title">Terminal — bash</span>
+    </div>
+    <div id="termOutput"></div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- ── GUI mockup ─────────────────────────────────────────────── -->
+<section class="section" id="gui">
+  <div class="reveal">
+    <div class="section-eyebrow">GUI</div>
+    <h2>No terminal required</h2>
+    <p class="lead">The tkinter interface exposes every setting — browse for your folder, tweak, and hit Convert.</p>
+  </div>
+  <div class="gui-wrap reveal reveal-delay-1">
+    <div class="gui-titlebar">
+      <span class="d d-r"></span><span class="d d-y"></span><span class="d d-g"></span>
+      <span class="gui-titlebar-text">ASCII Art Converter · Polka Dot Post</span>
+    </div>
+    <div class="gui-body">
+      <!-- Left panel -->
+      <div class="gui-left">
+        <div>
+          <div class="gui-section-label">Input Folder</div>
+          <div class="gui-browse-row">
+            <div class="gui-browse-field">/frames/shot_001/</div>
+            <div class="gui-browse-btn">Browse</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="gui-section-label">Cell &amp; Font</div>
+          <div class="gui-row"><span class="gui-label">Cell W (px)</span><div class="gui-input">6</div></div>
+          <div class="gui-row" style="margin-top:0.4rem"><span class="gui-label">Cell H (px)</span><div class="gui-input">12</div></div>
+          <div class="gui-row" style="margin-top:0.4rem"><span class="gui-label">Font size (pt)</span><div class="gui-input">12</div></div>
+        </div>
+
+        <div>
+          <div class="gui-section-label">Custom Strings</div>
+          <div class="gui-row"><div class="gui-input-wide">H&amp;M, PDP, ASCII, 2026</div></div>
+          <div class="gui-slider-row" style="margin-top:0.5rem">
+            <span class="gui-label" style="font-size:0.72rem;white-space:nowrap">Density</span>
+            <div class="gui-slider-track">
+              <div class="gui-slider-fill"></div>
+              <div class="gui-slider-thumb"></div>
+            </div>
+            <span class="gui-slider-val">0.50</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="gui-section-label">Output Style</div>
+          <div class="gui-radio-row">
+            <div class="gui-radio active">All</div>
+            <div class="gui-radio inactive">Mono</div>
+            <div class="gui-radio inactive">W/B</div>
+            <div class="gui-radio inactive">B/W</div>
+            <div class="gui-radio inactive">Colour</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="gui-section-label">Alpha &amp; Flags</div>
+          <div class="gui-row"><span class="gui-label">Alpha threshold</span><div class="gui-input">30</div></div>
+          <div class="gui-checkbox-row" style="margin-top:0.45rem">
+            <div class="gui-checkbox">✓</div>
+            <span style="font-size:0.74rem">Premultiplied alpha</span>
+          </div>
+        </div>
+
+        <div class="gui-btn-row">
+          <div class="gui-convert-btn">▶ Convert</div>
+          <div class="gui-cancel-btn">■ Cancel</div>
+        </div>
+      </div>
+
+      <!-- Right panel -->
+      <div class="gui-right">
+        <div class="gui-log-label">Output Log</div>
+        <div class="gui-log"><span style="color:var(--subtext0)">──────────────────────────────────</span>
+  Folder : <span style="color:var(--blue)">/frames/shot_001/</span>
+  Frames : <span style="color:var(--green)">240</span>
+  Cell   : <span style="color:var(--accent)">6×12px</span>  →  font <span style="color:var(--accent)">12pt</span>
+  Style  : <span style="color:var(--accent)">all</span>
+<span style="color:var(--subtext0)">──────────────────────────────────</span>
+  Font: consola.ttf
+  Char px: 7w × 14h
+<span style="color:var(--subtext0)">──────────────────────────────────</span>
+  [  1/240]  frame_001  <span style="color:var(--green)">✓</span>
+  [  2/240]  frame_002  <span style="color:var(--green)">✓</span>
+  [  3/240]  frame_003  <span style="color:var(--green)">✓</span>
+  <span style="color:var(--subtext0)">...</span>
+  [173/240]  frame_173  <span style="color:var(--green)">✓</span></div>
+        <div class="gui-progress-wrap">
+          <div class="gui-progress-bar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- ── Install ────────────────────────────────────────────────── -->
+<section class="section" id="install">
+  <div class="reveal">
+    <div class="section-eyebrow">Getting started</div>
+    <h2>Up and running in minutes</h2>
+    <p class="lead">Requires Python 3.10+ and two pip packages — nothing else.</p>
+  </div>
+  <div class="steps">
+    <div class="step reveal reveal-delay-1">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>Clone or download</h3>
+        <p><code>git clone https://github.com/harv12321/ascii-art-converter.git</code></p>
+      </div>
+    </div>
+    <div class="step reveal reveal-delay-2">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>Install dependencies</h3>
+        <p><code>pip install Pillow numpy</code> — that's it, no other dependencies.</p>
+      </div>
+    </div>
+    <div class="step reveal reveal-delay-3">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>Run the CLI</h3>
+        <p><code>python ascii_converter_2.py /path/to/png/folder</code> — results appear in <code>ascii_output/</code> alongside your frames.</p>
+      </div>
+    </div>
+    <div class="step reveal reveal-delay-4">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h3>Or launch the GUI</h3>
+        <p><code>python ascii_converter_gui.py</code> — browse for your folder, tweak any setting, and hit Convert.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- ── Config ─────────────────────────────────────────────────── -->
+<section class="section" id="config">
+  <div class="reveal">
+    <div class="section-eyebrow">Configuration</div>
+    <h2>All settings at a glance</h2>
+    <p class="lead">Edit the <code>CONFIG</code> block at the top of <code>ascii_converter_2.py</code>, or use the GUI for live adjustments.</p>
+  </div>
+  <div class="table-wrap reveal reveal-delay-1">
+    <table>
+      <thead>
+        <tr>
+          <th>Setting</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>CELL_W / CELL_H</td>
+          <td>6 / 12</td>
+          <td>Source pixels per ASCII character. Keep H ≈ 2×W to match monospace aspect ratios. Smaller = more detail.</td>
+        </tr>
+        <tr>
+          <td>FONT_SIZE</td>
+          <td>12</td>
+          <td>Point size of the rendered monospace font in the output PNG.</td>
+        </tr>
+        <tr>
+          <td>FONT_PATH</td>
+          <td>None (auto)</td>
+          <td>Explicit path to a .ttf / .otf file. Auto-detects Consolas, Courier, DejaVu, Menlo across platforms.</td>
+        </tr>
+        <tr>
+          <td>CUSTOM_STRINGS</td>
+          <td>["H&amp;M", "PDP", "ASCII", "2026"]</td>
+          <td>Strings scattered intact through the subject — each is always placed as a consecutive unit, never split.</td>
+        </tr>
+        <tr>
+          <td>CUSTOM_DENSITY</td>
+          <td>0.5</td>
+          <td>Probability a subject character is drawn from your strings vs the ASCII ramp. 0 = never, 1 = always.</td>
+        </tr>
+        <tr>
+          <td>STYLE</td>
+          <td>"all"</td>
+          <td><code>"white_on_black"</code>, <code>"black_on_white"</code>, <code>"colour"</code>, <code>"both"</code>, or <code>"all"</code>.</td>
+        </tr>
+        <tr>
+          <td>ALPHA_THRESHOLD</td>
+          <td>30</td>
+          <td>Cells with mean alpha below this value are treated as background (range 0–255).</td>
+        </tr>
+        <tr>
+          <td>IS_PREMULTIPLIED</td>
+          <td>True</td>
+          <td>Set False for subject-on-black PNGs without a real alpha channel (e.g. black-background renders).</td>
+        </tr>
+        <tr>
+          <td>OUTPUT_FOLDER</td>
+          <td>"ascii_output"</td>
+          <td>Name of the subfolder created inside your input folder. Style subfolders are created within it.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── Footer ────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-brand">Polka Dot Post</div>
+  <div class="footer-links">
+    <a href="#features">Features</a>
+    <a href="#install">Install</a>
+    <a href="#config">Config</a>
+    <a href="https://github.com/harv12321/ascii-art-converter">GitHub</a>
+  </div>
+  <div class="footer-copy">MIT License · Built with Python + tkinter</div>
+</footer>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════════════ -->
+<script>
+/* ── Sticky nav ─────────────────────────────────────────── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 30);
+}, { passive: true });
+
+/* ── Scroll reveal ──────────────────────────────────────── */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ── ASCII canvas animation ─────────────────────────────── */
+(function () {
+  const canvas = document.getElementById('asciiCanvas');
+  const ctx = canvas.getContext('2d');
+  const FONT = '11px "JetBrains Mono", monospace';
+  const CHARS = " .'`^\",.;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$".split('');
+  const BRANDS = ['PDP', 'ASCII', 'ART', '2026'];
+  const W = 700, H = 180;
+
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = H * dpr;
+    ctx.scale(dpr, dpr);
+  }
+
+  const COLS = 90, ROWS = 11;
+  const CW = W / COLS, CH = H / ROWS;
+
+  // Generate a shifting "wave" brightness field
+  let t = 0;
+  const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+
+  function brightness(col, row, time) {
+    const x = col / COLS;
+    const y = row / ROWS;
+    const wave1 = Math.sin(x * 6 + time * 0.8) * 0.5 + 0.5;
+    const wave2 = Math.cos(y * 4 - time * 0.5) * 0.5 + 0.5;
+    const radial = 1 - Math.hypot(x - 0.5, y - 0.5) * 1.4;
+    return Math.max(0, Math.min(1, wave1 * wave2 * (0.4 + radial * 0.7)));
+  }
+
+  // Scatter brand strings
+  let brandCells = {};
+  function placeBrands(time) {
+    brandCells = {};
+    const count = 6;
+    for (let b = 0; b < count; b++) {
+      const brand = BRANDS[b % BRANDS.length];
+      const row = Math.floor(((b * 1.7 + time * 0.05) % 1) * ROWS);
+      const startCol = Math.floor(((b * 2.3 + time * 0.03) % 1) * (COLS - brand.length));
+      for (let i = 0; i < brand.length; i++) {
+        brandCells[`${row},${startCol + i}`] = brand[i];
+      }
+    }
+  }
+
+  // Color palette — cycles through lavender to blue
+  function cellColor(b, isBrand) {
+    if (isBrand) return `hsl(${270 + Math.sin(t) * 20}, 75%, ${60 + b * 20}%)`;
+    if (b < 0.15) return '#45475a';
+    const h = 240 + b * 60;
+    const l = 45 + b * 35;
+    return `hsl(${h}, 70%, ${l}%)`;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    placeBrands(t);
+
+    ctx.font = FONT;
+    ctx.textBaseline = 'top';
+
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const b = brightness(c, r, t);
+        const key = `${r},${c}`;
+        const isBrand = key in brandCells;
+        const ch = isBrand ? brandCells[key] : CHARS[Math.floor(b * (CHARS.length - 1))];
+        if (!ch || ch === ' ') continue;
+        ctx.fillStyle = cellColor(b, isBrand);
+        ctx.fillText(ch, c * CW, r * CH);
+      }
+    }
+    t += 0.018;
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  draw();
+})();
+
+/* ── Typewriter terminal ────────────────────────────────── */
+(function () {
+  const out = document.getElementById('termOutput');
+
+  const lines = [
+    { text: '$ python ascii_converter_2.py "/frames/shot_001/"', cls: '' },
+    { text: '', cls: '' },
+    { text: '──────────────────────────────────────────────────────────', cls: 't-muted' },
+    { text: '  Folder : /frames/shot_001/', cls: 't-blue' },
+    { text: '  Frames : 240', cls: 't-green' },
+    { text: '  Cell   : 6×12px  →  font 12pt', cls: 't-accent' },
+    { text: "  Custom : ['H&M', 'PDP', 'ASCII', '2026']  density=0.5", cls: 't-yellow' },
+    { text: '  Style  : all', cls: 't-accent' },
+    { text: '──────────────────────────────────────────────────────────', cls: 't-muted' },
+    { text: '  Font: C:/Windows/Fonts/consola.ttf', cls: '' },
+    { text: '  Char px: 7w × 14h', cls: '' },
+    { text: '──────────────────────────────────────────────────────────', cls: 't-muted' },
+    { text: '  [   1/240]  frame_001  ✓', cls: 't-green' },
+    { text: '  [   2/240]  frame_002  ✓', cls: 't-green' },
+    { text: '  [   3/240]  frame_003  ✓', cls: 't-green' },
+    { text: '  ...', cls: 't-muted' },
+    { text: '  [ 240/240]  frame_240  ✓', cls: 't-green' },
+    { text: '──────────────────────────────────────────────────────────', cls: 't-muted' },
+    { text: '  Done! → /frames/shot_001/ascii_output/', cls: 't-blue' },
+    { text: '──────────────────────────────────────────────────────────', cls: 't-muted' },
+  ];
+
+  let lineIdx = 0, charIdx = 0;
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+
+  let started = false;
+
+  // Only start animation when terminal is visible
+  const termObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !started) {
+      started = true;
+      type();
+    }
+  }, { threshold: 0.3 });
+  termObserver.observe(out);
+
+  function buildDOM() {
+    out.innerHTML = '';
+    lines.slice(0, lineIdx).forEach(l => {
+      const span = document.createElement('span');
+      span.className = l.cls;
+      span.textContent = (l.text || '') + '\n';
+      out.appendChild(span);
+    });
+    // current line partial
+    if (lineIdx < lines.length) {
+      const cur = lines[lineIdx];
+      const partial = (cur.text || '').slice(0, charIdx);
+      const span = document.createElement('span');
+      span.className = cur.cls;
+      span.textContent = partial;
+      out.appendChild(span);
+    }
+    out.appendChild(cursor);
+  }
+
+  function type() {
+    if (lineIdx >= lines.length) {
+      cursor.remove();
+      return;
+    }
+    const line = lines[lineIdx];
+    const len = (line.text || '').length;
+
+    // Blank lines advance quickly
+    if (len === 0) {
+      lineIdx++;
+      charIdx = 0;
+      buildDOM();
+      setTimeout(type, 60);
+      return;
+    }
+
+    if (charIdx <= len) {
+      buildDOM();
+      charIdx++;
+      // Vary speed: separators fast, normal text slower
+      const isSep = line.cls === 't-muted';
+      const delay = isSep ? 8 : (charIdx === 1 ? 100 : 22);
+      setTimeout(type, delay);
+    } else {
+      lineIdx++;
+      charIdx = 0;
+      buildDOM();
+      // Pause between lines
+      const pause = lines[lineIdx - 1].cls === 't-muted' ? 0 : 40;
+      setTimeout(type, pause);
+    }
+  }
+
+  buildDOM();
+})();
+</script>
+</body>
+</html>
