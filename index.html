@@ -318,6 +318,41 @@
       margin: 0;
     }
 
+    /* ── Gallery ──────────────────────────────────────────────── */
+    .gallery {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+    }
+    .gallery-item {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--overlay0);
+      background: var(--surface0);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .gallery-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+    }
+    .gallery-item img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .gallery-caption {
+      padding: 0.65rem 0.9rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      color: var(--subtext0);
+      border-top: 1px solid var(--overlay0);
+      letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 640px) {
+      .gallery { grid-template-columns: 1fr; }
+    }
+
     /* ══════════════════════════════════════════════════════════
        FEATURE CARDS
     ══════════════════════════════════════════════════════════ */
@@ -1012,6 +1047,27 @@
       <div class="card-icon">🖥️</div>
       <h3>GUI + CLI</h3>
       <p>Run headlessly in a terminal or launch the tkinter GUI for a live settings panel with a real-time progress bar and log.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- ── Gallery ───────────────────────────────────────────────── -->
+<section class="section" id="gallery">
+  <div class="reveal">
+    <div class="section-eyebrow">Output examples</div>
+    <h2>See the results</h2>
+    <p class="lead">Same source footage, two styles — both generated in a single pass.</p>
+  </div>
+  <div class="gallery reveal reveal-delay-1">
+    <div class="gallery-item">
+      <img src="preview.png" alt="ASCII art — white on black" loading="lazy" />
+      <div class="gallery-caption">white_on_black</div>
+    </div>
+    <div class="gallery-item">
+      <img src="preview2.png" alt="ASCII art — black on white" loading="lazy" />
+      <div class="gallery-caption">black_on_white</div>
     </div>
   </div>
 </section>
