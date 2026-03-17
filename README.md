@@ -3,7 +3,7 @@
 Convert image sequences into ASCII art frames — CLI + GUI.
 Built by [Polka Dot Post](https://github.com/harv12321).
 
-<img src="preview.png" width="100%" alt="ASCII art effect — white on black" />
+<img src="preview.png" width="100%" alt="ASCII art effect — colour" />
 
 <img src="preview2.png" width="100%" alt="ASCII art effect — black on white" />
 
@@ -89,6 +89,6 @@ git clone https://github.com/harv12321/ascii-art-converter.git
 
 ## Live site
 
-[harv12321.github.io/ascii-art-converter](https://harv12321.github.io/ascii-art-converter)
+**[→ harv12321.github.io/ascii-art-converter](https://harv12321.github.io/ascii-art-converter)**
 
 ---
