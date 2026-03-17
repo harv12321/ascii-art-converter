@@ -62,7 +62,7 @@ FONT_PATH: str | None = None
 # ── Custom string scattering ─────────────────────────────────
 # Strings whose characters will be randomly scattered through
 # the subject. Add as many as you like.
-CUSTOM_STRINGS: list[str] = ["H&M", "PDP", "ASCII", "2026"]
+CUSTOM_STRINGS: list[str] = ["BRAND", "PDP", "ASCII", "2026"]
 
 # Probability that any given subject character is drawn from
 # CUSTOM_STRINGS instead of the standard ASCII ramp.
@@ -102,14 +102,14 @@ OUTPUT_FOLDER: str = "ascii_output"
 # ════════════════════════════════════════════════════════════
 
 RAMP_LEN: int = len(ASCII_RAMP)
-# Stores whole strings (not individual chars) so "H&M" is always placed intact.
+# Stores whole strings (not individual chars) so "BRAND" is always placed intact.
 _CUSTOM_POOL: list[str] = []
 
 
 def _build_custom_pool() -> None:
     """
     Store each custom string as a whole unit.
-    When scattering, a full string like "H&M" is placed in consecutive
+    When scattering, a full string like "BRAND" is placed in consecutive
     cells rather than having H, & and M appear at random separate positions.
     """
     global _CUSTOM_POOL
@@ -196,7 +196,7 @@ def _image_to_ascii_grid(
       rgb   — the average colour of the source pixels in that cell
                (used by the "colour" style; ignored by mono styles)
 
-    Custom strings (e.g. "H&M") are emitted as whole consecutive units
+    Custom strings (e.g. "BRAND") are emitted as whole consecutive units
     using a pending-character queue so they always appear intact.
     Background (low alpha) cells become (" ", (0, 0, 0)).
     """

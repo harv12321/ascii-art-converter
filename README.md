@@ -79,7 +79,7 @@ git clone https://github.com/harv12321/ascii-art-converter.git
 |---|---|---|
 | Cell W / Cell H | 6 / 12 | Source pixels per ASCII character. Keep H ≈ 2×W. |
 | Font size | 12pt | Size of the monospace font in the output image. |
-| Custom strings | H&M, PDP, ASCII, 2026 | Text scattered intact through the subject area. |
+| Custom strings | BRAND, PDP, ASCII, 2026 | Text scattered intact through the subject area. |
 | Density | 0.5 | 0 = only ramp chars, 1 = only your custom strings. |
 | Style | all | `white_on_black`, `black_on_white`, `colour`, `both`, or `all`. |
 | Alpha threshold | 30 | Cells below this alpha are treated as background. |

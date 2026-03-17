@@ -383,7 +383,7 @@ class App(tk.Tk):
             row=r, column=0, columnspan=2, sticky="w", pady=(10, 2))
         r += 1
 
-        self._custom_strings = tk.StringVar(value="H&M, PDP, ASCII, 2026")
+        self._custom_strings = tk.StringVar(value="BRAND, PDP, ASCII, 2026")
         self._custom_density = tk.DoubleVar(value=0.5)
 
         self._lbl(parent, "Strings (comma-sep)", r)
